@@ -56,6 +56,7 @@ import com.cloud.network.dao.FirewallRulesCidrsDao;
 import com.cloud.network.dao.FirewallRulesDao;
 import com.cloud.network.dao.IPAddressDao;
 import com.cloud.network.dao.IPAddressVO;
+import com.cloud.network.dao.NetworkDao;
 import com.cloud.network.dao.NetworkServiceMapDao;
 import com.cloud.network.dao.PhysicalNetworkDao;
 import com.cloud.network.dao.PhysicalNetworkVO;
@@ -194,6 +195,8 @@ public class NuageVspElement extends AdapterBase implements ConnectivityProvider
     DomainRouterDao _routerDao;
     @Inject
     ResourceTagDao _resourceTagDao;
+    @Inject
+    NetworkDao _networkDao;
 
     @Override
     public boolean applyIps(Network network, List<? extends PublicIpAddress> ipAddress, Set<Service> service) throws ResourceUnavailableException {
@@ -267,7 +270,8 @@ public class NuageVspElement extends AdapterBase implements ConnectivityProvider
             return false;
         }
 
-
+        _nuageVspManager.updateBroadcastUri(network);
+        network = _networkDao.findById(network.getId());
         VspNetwork vspNetwork = _nuageVspEntityBuilder.buildVspNetwork(network);
         List<VspAclRule> ingressFirewallRules = getFirewallRulesToApply(network, FirewallRule.TrafficType.Ingress);
         List<VspAclRule> egressFirewallRules = getFirewallRulesToApply(network, FirewallRule.TrafficType.Egress);

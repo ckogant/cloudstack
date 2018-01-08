@@ -298,11 +298,10 @@ public class NuageVspGuestNetworkGuru extends GuestNetworkGuru implements Networ
                 implemented.setCidr(network.getCidr());
             }
 
-            VspNetwork vspNetwork = _nuageVspEntityBuilder.buildVspNetwork(implemented, true);
             String tenantId = context.getDomain().getName() + "-" + context.getAccount().getAccountId();
-            String broadcastUriStr = implemented.getUuid() + "/" + vspNetwork.getVirtualRouterIp();
-            implemented.setBroadcastUri(Networks.BroadcastDomainType.Vsp.toUri(broadcastUriStr));
+            implemented.setBroadcastUri(_nuageVspManager.calculateBroadcastUri(implemented));
             implemented.setBroadcastDomainType(Networks.BroadcastDomainType.Vsp);
+            VspNetwork vspNetwork = _nuageVspEntityBuilder.buildVspNetwork(implemented);
 
             boolean implementSucceeded = implement(network.getVpcId(), physicalNetworkId, vspNetwork, implemented, _nuageVspEntityBuilder.buildNetworkDhcpOption(network, offering));
 
@@ -448,14 +447,14 @@ public class NuageVspGuestNetworkGuru extends GuestNetworkGuru implements Networ
             HostVO nuageVspHost = _nuageVspManager.getNuageVspHost(network.getPhysicalNetworkId());
             VspNetwork vspNetwork = _nuageVspEntityBuilder.buildVspNetwork(vm.getVirtualMachine().getDomainId(), network);
 
-            if (vm.getType() == VirtualMachine.Type.DomainRouter && vspNetwork.getVirtualRouterIp().equals("null")) {
+            boolean isUpgradeNetworkOffering = vm.getType() == VirtualMachine.Type.DomainRouter && vspNetwork.getVirtualRouterIp()
+                                                                                          .equals("null");
+            if (isUpgradeNetworkOffering) {
                 //In case of upgrade network offering
-                vspNetwork = _nuageVspEntityBuilder.buildVspNetwork(vm.getVirtualMachine().getDomainId(), network, null, true);
-                String broadcastUriStr = network.getUuid() + "/" + vspNetwork.getVirtualRouterIp();
-                NetworkVO updatedNetwork = _networkDao.createForUpdate(network.getId());
-                updatedNetwork.setBroadcastUri(Networks.BroadcastDomainType.Vsp.toUri(broadcastUriStr));
-                _networkDao.update(updatedNetwork.getId(), updatedNetwork);
+                NetworkOffering offering = _ntwkOfferingDao.findById(network.getNetworkOfferingId());
+                _nuageVspManager.updateBroadcastUri(network);
                 network = _networkDao.findById(network.getId());
+                vspNetwork = _nuageVspEntityBuilder.buildVspNetwork(vm.getVirtualMachine().getDomainId(), network, null);
             }
 
             if (vspNetwork.isShared()) {
