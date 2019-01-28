@@ -36,24 +36,18 @@ import org.apache.cloudstack.affinity.dao.AffinityGroupVMMapDao;
 import org.apache.cloudstack.api.BaseListProjectAndAccountResourcesCmd;
 import org.apache.cloudstack.api.ResourceDetail;
 import org.apache.cloudstack.api.ResponseObject.ResponseView;
-import org.apache.cloudstack.api.command.admin.account.ListAccountsCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.domain.ListDomainsCmd;
-import org.apache.cloudstack.api.command.admin.domain.ListDomainsCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.host.ListHostTagsCmd;
 import org.apache.cloudstack.api.command.admin.host.ListHostsCmd;
 import org.apache.cloudstack.api.command.admin.internallb.ListInternalLBVMsCmd;
-import org.apache.cloudstack.api.command.admin.iso.ListIsosCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.management.ListMgmtsCmd;
 import org.apache.cloudstack.api.command.admin.router.ListRoutersCmd;
 import org.apache.cloudstack.api.command.admin.storage.ListImageStoresCmd;
 import org.apache.cloudstack.api.command.admin.storage.ListSecondaryStagingStoresCmd;
 import org.apache.cloudstack.api.command.admin.storage.ListStoragePoolsCmd;
 import org.apache.cloudstack.api.command.admin.storage.ListStorageTagsCmd;
-import org.apache.cloudstack.api.command.admin.template.ListTemplatesCmdByAdmin;
 import org.apache.cloudstack.api.command.admin.user.ListUsersCmd;
 import org.apache.cloudstack.api.command.admin.vm.ListVMsCmdByAdmin;
-import org.apache.cloudstack.api.command.admin.volume.ListVolumesCmdByAdmin;
-import org.apache.cloudstack.api.command.admin.zone.ListZonesCmdByAdmin;
 import org.apache.cloudstack.api.command.user.account.ListAccountsCmd;
 import org.apache.cloudstack.api.command.user.account.ListProjectAccountsCmd;
 import org.apache.cloudstack.api.command.user.affinitygroup.ListAffinityGroupsCmd;
@@ -755,10 +749,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
     public ListResponse<UserVmResponse> searchForUserVMs(ListVMsCmd cmd) {
         Pair<List<UserVmJoinVO>, Integer> result = searchForUserVMsInternal(cmd);
         ListResponse<UserVmResponse> response = new ListResponse<UserVmResponse>();
-        ResponseView respView = ResponseView.Restricted;
-        if (cmd instanceof ListVMsCmdByAdmin) {
-            respView = ResponseView.Full;
-        }
+        ResponseView respView = cmd.getResponseView();
         List<UserVmResponse> vmResponses = ViewResponseHelper.createUserVmResponse(respView, "virtualmachine", cmd.getDetails(), result.first().toArray(new UserVmJoinVO[result.first().size()]));
 
         response.setResponses(vmResponses, result.second());
@@ -1664,10 +1655,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         Pair<List<VolumeJoinVO>, Integer> result = searchForVolumesInternal(cmd);
         ListResponse<VolumeResponse> response = new ListResponse<VolumeResponse>();
 
-        ResponseView respView = ResponseView.Restricted;
-        if (cmd instanceof ListVolumesCmdByAdmin) {
-            respView = ResponseView.Full;
-        }
+        ResponseView respView = cmd.getResponseView();
 
         List<VolumeResponse> volumeResponses = ViewResponseHelper.createVolumeResponse(respView, result.first().toArray(new VolumeJoinVO[result.first().size()]));
 
@@ -1846,10 +1834,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         Pair<List<DomainJoinVO>, Integer> result = searchForDomainsInternal(cmd);
         ListResponse<DomainResponse> response = new ListResponse<DomainResponse>();
 
-        ResponseView respView = ResponseView.Restricted;
-        if (cmd instanceof ListDomainsCmdByAdmin) {
-            respView = ResponseView.Full;
-        }
+        ResponseView respView = cmd.getResponseView();
 
         List<DomainResponse> domainResponses = ViewResponseHelper.createDomainResponse(respView, cmd.getDetails(), result.first());
         response.setResponses(domainResponses, result.second());
@@ -1928,10 +1913,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         Pair<List<AccountJoinVO>, Integer> result = searchForAccountsInternal(cmd);
         ListResponse<AccountResponse> response = new ListResponse<AccountResponse>();
 
-        ResponseView respView = ResponseView.Restricted;
-        if (cmd instanceof ListAccountsCmdByAdmin) {
-            respView = ResponseView.Full;
-        }
+        ResponseView respView = cmd.getResponseView();
 
         List<AccountResponse> accountResponses = ViewResponseHelper.createAccountResponse(respView, result.first().toArray(new AccountJoinVO[result.first().size()]));
         response.setResponses(accountResponses, result.second());
@@ -2794,10 +2776,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         Pair<List<DataCenterJoinVO>, Integer> result = listDataCentersInternal(cmd);
         ListResponse<ZoneResponse> response = new ListResponse<ZoneResponse>();
 
-        ResponseView respView = ResponseView.Restricted;
-        if (cmd instanceof ListZonesCmdByAdmin) {
-            respView = ResponseView.Full;
-        }
+        ResponseView respView = cmd.getResponseView();
 
         List<ZoneResponse> dcResponses = ViewResponseHelper.createDataCenterResponse(respView, cmd.getShowCapacities(), result.first().toArray(new DataCenterJoinVO[result.first().size()]));
         response.setResponses(dcResponses, result.second());
@@ -3029,10 +3008,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         Pair<List<TemplateJoinVO>, Integer> result = searchForTemplatesInternal(cmd);
         ListResponse<TemplateResponse> response = new ListResponse<TemplateResponse>();
 
-        ResponseView respView = ResponseView.Restricted;
-        if (cmd instanceof ListTemplatesCmdByAdmin) {
-            respView = ResponseView.Full;
-        }
+        ResponseView respView = cmd.getResponseView();
 
         List<TemplateResponse> templateResponses = ViewResponseHelper.createTemplateResponse(respView, result.first().toArray(new TemplateJoinVO[result.first().size()]));
         response.setResponses(templateResponses, result.second());
@@ -3359,10 +3335,7 @@ public class QueryManagerImpl extends MutualExclusiveIdsManagerBase implements Q
         Pair<List<TemplateJoinVO>, Integer> result = searchForIsosInternal(cmd);
         ListResponse<TemplateResponse> response = new ListResponse<TemplateResponse>();
 
-        ResponseView respView = ResponseView.Restricted;
-        if (cmd instanceof ListIsosCmdByAdmin) {
-            respView = ResponseView.Full;
-        }
+        ResponseView respView = cmd.getResponseView();
 
         List<TemplateResponse> templateResponses = ViewResponseHelper.createIsoResponse(respView, result.first().toArray(new TemplateJoinVO[result.first().size()]));
         response.setResponses(templateResponses, result.second());

@@ -16,9 +16,6 @@
 // under the License.
 package org.apache.cloudstack.api.command.user.project;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -27,10 +24,9 @@ import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.BaseListAccountResourcesCmd;
 import org.apache.cloudstack.api.Parameter;
+import org.apache.cloudstack.api.TaggedResources;
 import org.apache.cloudstack.api.response.ListResponse;
 import org.apache.cloudstack.api.response.ProjectResponse;
-
-import com.cloud.exception.InvalidParameterValueException;
 
 @APICommand(name = "listProjects",
             description = "Lists projects and provides detailed information for listed projects",
@@ -87,22 +83,7 @@ public class ListProjectsCmd extends BaseListAccountResourcesCmd {
     }
 
     public Map<String, String> getTags() {
-        Map<String, String> tagsMap = null;
-        if (tags != null && !tags.isEmpty()) {
-            tagsMap = new HashMap<String, String>();
-            Collection<?> servicesCollection = tags.values();
-            Iterator<?> iter = servicesCollection.iterator();
-            while (iter.hasNext()) {
-                HashMap<String, String> services = (HashMap<String, String>)iter.next();
-                String key = services.get("key");
-                String value = services.get("value");
-                if (value == null) {
-                    throw new InvalidParameterValueException("No value is passed in for key " + key);
-                }
-                tagsMap.put(key, value);
-            }
-        }
-        return tagsMap;
+        return TaggedResources.parseKeyValueMap(tags, false);
     }
 
     /////////////////////////////////////////////////////
